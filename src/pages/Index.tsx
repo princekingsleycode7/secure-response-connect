@@ -10,6 +10,7 @@ const Index = () => {
       <div className="container mx-auto space-y-8">
         <header className="text-center mb-8">
           <h1 className="text-3xl font-bold">Emergency Response Network</h1>
+          <p className="text-gray-500 mt-2">24/7 Emergency Assistance</p>
         </header>
         
         <div className="flex flex-col items-center space-y-8">
