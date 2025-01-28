@@ -10,7 +10,7 @@ export const EmergencyButton = () => {
   const { toast } = useToast();
 
   useEffect(() => {
-    let interval: number;
+    let interval: NodeJS.Timeout;
     if (isActive) {
       interval = setInterval(() => {
         setTimer((prev) => prev + 1);
