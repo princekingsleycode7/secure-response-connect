@@ -4,6 +4,8 @@ const client = createClient({
   url: 'file:local.db',
 });
 
+export type IncidentStatus = "pending" | "in-progress" | "resolved";
+
 export const initDB = async () => {
   await client.execute(`
     CREATE TABLE IF NOT EXISTS incidents (
@@ -26,7 +28,7 @@ export const saveIncident = async (incident: {
   category: string;
   description: string;
   timestamp: string;
-  status: string;
+  status: IncidentStatus;
   hasMedia: boolean;
   isAnonymous: boolean;
   latitude?: number;
@@ -53,16 +55,16 @@ export const saveIncident = async (incident: {
 
 export const getIncidents = async () => {
   const result = await client.execute('SELECT * FROM incidents ORDER BY timestamp DESC');
-  return result.rows as Array<{
-    id: string;
-    category: string;
-    description: string;
-    timestamp: string;
-    status: string;
-    hasMedia: boolean;
-    isAnonymous: boolean;
-    latitude: number | null;
-    longitude: number | null;
-    audioUrl: string | null;
-  }>;
+  return result.rows.map(row => ({
+    id: String(row.id),
+    category: String(row.category),
+    description: String(row.description),
+    timestamp: String(row.timestamp),
+    status: String(row.status) as IncidentStatus,
+    hasMedia: Boolean(row.hasMedia),
+    isAnonymous: Boolean(row.isAnonymous),
+    latitude: row.latitude ? Number(row.latitude) : null,
+    longitude: row.longitude ? Number(row.longitude) : null,
+    audioUrl: row.audioUrl ? String(row.audioUrl) : null,
+  }));
 };

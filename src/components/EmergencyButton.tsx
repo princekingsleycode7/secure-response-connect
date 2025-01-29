@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
-import { Timer, AlertTriangle } from "lucide-react";
+import { AlertTriangle } from "lucide-react";
 import { saveIncident } from "@/lib/db";
 import { v4 as uuidv4 } from "uuid";
 
