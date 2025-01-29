@@ -1,9 +1,9 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Button } from "@/components/ui/button";
-import { Search, Filter } from "lucide-react";
+import { getIncidents } from "@/lib/db";
+import { Search } from "lucide-react";
 
 type Incident = {
   id: string;
@@ -13,38 +13,26 @@ type Incident = {
   status: "pending" | "in-progress" | "resolved";
   hasMedia: boolean;
   isAnonymous: boolean;
-  location?: { lat: number; long: number };
+  latitude: number | null;
+  longitude: number | null;
+  audioUrl: string | null;
 };
 
-const MOCK_INCIDENTS: Incident[] = [
-  {
-    id: "1",
-    category: "medical",
-    description: "Medical emergency at Main St.",
-    timestamp: new Date().toISOString(),
-    status: "pending",
-    hasMedia: true,
-    isAnonymous: false,
-    location: { lat: 40.7128, long: -74.0060 },
-  },
-  {
-    id: "2",
-    category: "fire",
-    description: "Small fire reported in building B",
-    timestamp: new Date(Date.now() - 3600000).toISOString(),
-    status: "in-progress",
-    hasMedia: false,
-    isAnonymous: true,
-    location: { lat: 40.7129, long: -74.0061 },
-  },
-];
-
 export const IncidentDashboard = () => {
+  const [incidents, setIncidents] = useState<Incident[]>([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState<string>("all");
   const [sortBy, setSortBy] = useState<"newest" | "oldest">("newest");
 
-  const filteredIncidents = MOCK_INCIDENTS
+  useEffect(() => {
+    const loadIncidents = async () => {
+      const data = await getIncidents();
+      setIncidents(data);
+    };
+    loadIncidents();
+  }, []);
+
+  const filteredIncidents = incidents
     .filter((incident) => {
       const matchesSearch = incident.description
         .toLowerCase()
@@ -109,9 +97,9 @@ export const IncidentDashboard = () => {
                   </span>
                 </div>
                 <p className="text-sm">{incident.description}</p>
-                {incident.location && (
+                {incident.latitude && incident.longitude && (
                   <p className="text-sm text-gray-500">
-                    Location: {incident.location.lat.toFixed(4)}, {incident.location.long.toFixed(4)}
+                    Location: {incident.latitude.toFixed(4)}, {incident.longitude.toFixed(4)}
                   </p>
                 )}
                 {incident.hasMedia && (

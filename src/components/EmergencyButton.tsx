@@ -2,6 +2,8 @@ import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 import { Timer, AlertTriangle } from "lucide-react";
+import { saveIncident } from "@/lib/db";
+import { v4 as uuidv4 } from "uuid";
 
 export const EmergencyButton = () => {
   const [isActive, setIsActive] = useState(false);
@@ -46,13 +48,40 @@ export const EmergencyButton = () => {
   }, [isActive, toast]);
 
   const handleEmergency = async () => {
-    setIsActive(true);
-    toast({
-      title: "Emergency Mode Activated",
-      description: "Location tracking and audio recording started",
-      duration: null,
-      variant: "destructive",
-    });
+    if (isActive) {
+      // Stop SOS mode
+      setIsActive(false);
+      setTimer(0);
+      
+      // Save incident to database
+      if (location) {
+        await saveIncident({
+          id: uuidv4(),
+          category: "emergency",
+          description: `Emergency SOS activated for ${formatTime(timer)}`,
+          timestamp: new Date().toISOString(),
+          status: "pending",
+          hasMedia: false,
+          isAnonymous: false,
+          latitude: location.latitude,
+          longitude: location.longitude,
+        });
+      }
+
+      toast({
+        title: "Emergency Mode Deactivated",
+        description: "Location tracking stopped",
+      });
+    } else {
+      // Start SOS mode
+      setIsActive(true);
+      toast({
+        title: "Emergency Mode Activated",
+        description: "Location tracking started",
+        duration: null,
+        variant: "destructive",
+      });
+    }
   };
 
   const formatTime = (seconds: number) => {
