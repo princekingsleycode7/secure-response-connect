@@ -1,7 +1,8 @@
 import { createClient } from '@libsql/client';
 
 const client = createClient({
-  url: 'file:local.db',
+  url: 'libsql://localhost:8080',  // Using libsql scheme for local development
+  authToken: 'development',        // Development token
 });
 
 export type IncidentStatus = "pending" | "in-progress" | "resolved";
